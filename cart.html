@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سلة الطلب</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>سلة الطلب</h1>
+    <div id="table-display" class="table-badge">طاولة رقم: --</div>
+  </header>
+
+  <main>
+    <div id="cart-items"></div>
+    <div id="buttons">
+      <button class="secondary-btn" onclick="goBack()">إضافة طلبات أخرى</button>
+      <button class="send-btn" onclick="sendOrder()">تأكيد وإرسال الطلب ➔</button>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>قائمة الطعام</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>أهلاً وسهلاً بكم</h1>
+    <div id="table-display" class="table-badge">طاولة رقم: --</div>
+  </header>
+
+  <nav class="categories-nav">
+    <button class="nav-btn active" onclick="filterCategory('all', this)">✨ الكل</button>
+    <button class="nav-btn" onclick="filterCategory('drinks', this)">🥤 مشروبات</button>
+    <button class="nav-btn" onclick="filterCategory('arabic', this)">🥙 أكل شرقي</button>
+    <button class="nav-btn" onclick="filterCategory('western', this)">🍕 أكل غربي</button>
+    <button class="nav-btn" onclick="filterCategory('starters', this)">🍟 مقبلات</button>
+    <button class="nav-btn" onclick="filterCategory('desserts', this)">🍰 حلويات</button>
+  </nav>
+
+  <section id="menu-container"></section>
+
+  <!-- زر السلة العائم للموبايل -->
+  <a href="cart.html" id="cart-link" class="floating-cart" title="السلة">
+    🛒 <span id="cart-count" class="cart-badge">0</span>
+  </a>
+</body>
+</html>

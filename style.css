@@ -1,0 +1,426 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+
+body {
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+  background-color: #121212;
+  margin: 0;
+  padding: 0;
+  color: #e0e0e0;
+  padding-bottom: 60px;
+}
+
+/* Header */
+header {
+  background: linear-gradient(135deg, #1f1c18, #2a0808);
+  border-bottom: 2px solid #d4af37;
+  color: #ffffff;
+  padding: 20px 15px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+header h1 {
+  margin: 0;
+  font-weight: 800;
+  color: #d4af37;
+  font-size: 24px;
+}
+
+.table-badge {
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid #d4af37;
+  color: #f1c40f;
+  display: inline-block;
+  padding: 4px 16px;
+  border-radius: 20px;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Categories Nav Bar */
+.categories-nav {
+  display: flex;
+  overflow-x: auto;
+  gap: 10px;
+  padding: 15px 10px;
+  background: #181818;
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  scrollbar-width: none;
+}
+
+.categories-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-btn {
+  padding: 8px 18px;
+  background-color: #242424;
+  color: #aaa;
+  border: 1px solid #333;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.nav-btn.active, .nav-btn:hover {
+  background: linear-gradient(135deg, #d4af37, #aa7c11);
+  color: #000;
+  border-color: #d4af37;
+}
+
+/* Floating Cart Link */
+.floating-cart {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: linear-gradient(135deg, #27ae60, #1e824c);
+  color: white;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  text-decoration: none;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.6);
+  z-index: 999;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 7px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Grid Layout */
+#menu-container, #cart-items, #order-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.menu-item {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+}
+
+.menu-item:hover {
+  transform: translateY(-5px);
+  border-color: #d4af37;
+}
+
+.menu-item img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.card-body {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.menu-item h3 {
+  margin: 0 0 5px;
+  font-size: 18px;
+  color: #fff;
+}
+
+.ingredients {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.price {
+  font-size: 17px;
+  font-weight: 800;
+  color: #d4af37;
+  margin-bottom: 12px;
+}
+
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background-color: #2a2a2a;
+  color: #fff;
+  font-family: inherit;
+  font-size: 12px;
+  resize: none;
+  height: 50px;
+  margin-bottom: 10px;
+}
+
+.qty-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.qty-control button {
+  width: 32px;
+  height: 32px;
+  background: #333;
+  color: #d4af37;
+  border: 1px solid #d4af37;
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.qty-control input {
+  width: 45px;
+  text-align: center;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 15px;
+  padding: 4px;
+}
+
+.add-btn {
+  background: linear-gradient(135deg, #d4af37, #aa7c11);
+  color: #000;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 800;
+  width: 100%;
+}
+
+.cart-item-card {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-item-info h3 { margin: 0 0 5px; font-size: 16px; color: #fff; }
+.cart-item-info p { margin: 2px 0; font-size: 13px; color: #aaa; }
+.item-note { color: #f39c12 !important; }
+
+.delete-btn {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.empty-cart {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+}
+
+.invoice-total {
+  font-weight: 800;
+  font-size: 18px;
+  margin: 15px 0;
+  text-align: center;
+  color: #d4af37;
+  grid-column: 1 / -1;
+}
+
+.secondary-btn, .send-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+  margin-top: 10px;
+  cursor: pointer;
+  border: none;
+}
+
+.send-btn { background: linear-gradient(135deg, #27ae60, #1e824c); color: #fff; }
+.secondary-btn { background: #2a2a2a; color: #d4af37; border: 1px solid #d4af37; }
+
+#buttons {
+  display: flex;
+  gap: 10px;
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+.toast-notification {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #d4af37;
+  color: #000;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+}
+
+.toast-notification.hide { opacity: 0; transition: opacity 0.4s ease; }
+
+/* Thank You Card */
+.thankyou-card {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 16px;
+  padding: 25px 20px;
+  text-align: center;
+  grid-column: 1 / -1;
+  max-width: 600px;
+  margin: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.success-icon {
+  font-size: 50px;
+  margin-bottom: 10px;
+}
+
+.thankyou-card h2 { color: #d4af37; margin: 0 0 10px; }
+.thankyou-card p { color: #ccc; font-size: 15px; margin-bottom: 20px; }
+
+/* Interactive Games Section */
+.game-container {
+  margin-top: 30px;
+  padding: 20px 15px;
+  background: #161616;
+  border: 1px solid #333;
+  border-radius: 14px;
+}
+
+.game-container h3 { color: #f1c40f; margin: 0 0 15px; font-size: 16px; }
+
+.game-selector {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.game-tab-btn {
+  padding: 8px 16px;
+  background: #262626;
+  color: #aaa;
+  border: 1px solid #444;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.game-tab-btn.active {
+  background: #d4af37;
+  color: #000;
+  border-color: #d4af37;
+}
+
+.game-desc { font-size: 13px; color: #888; margin-bottom: 15px; }
+
+/* Memory Game CSS */
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  max-width: 320px;
+  margin: 0 auto 15px;
+}
+
+.memory-card {
+  aspect-ratio: 1;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.3s ease;
+}
+
+.memory-card .card-icon { display: none; }
+.memory-card.flipped, .memory-card.matched {
+  background: #d4af37;
+  transform: rotateY(180deg);
+}
+.memory-card.flipped .card-icon, .memory-card.matched .card-icon {
+  display: block;
+  transform: rotateY(180deg);
+}
+.memory-card.matched { opacity: 0.6; cursor: default; }
+
+/* Math Speed Game CSS */
+.math-problem { font-size: 28px; font-weight: bold; color: #fff; margin: 15px 0; }
+.math-score { font-size: 16px; color: #27ae60; font-weight: bold; }
+.math-options { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+.math-opt-btn {
+  padding: 10px 20px;
+  background: #2a2a2a;
+  color: #d4af37;
+  border: 1px solid #d4af37;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.restart-btn {
+  padding: 8px 18px;
+  background: #333;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
