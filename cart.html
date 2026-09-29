@@ -3,22 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>سلة الطلب</title>
+  <title>سلة الطلب الفاخرة</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
   <script src="script.js" defer></script>
 </head>
 <body>
-  <header>
-    <h1>سلة الطلب</h1>
-    <div id="table-display" class="table-badge">طاولة رقم: --</div>
+
+  <header class="glass-header">
+    <div class="header-content">
+      <h1 class="logo-text">🛒 سلة الطلبات</h1>
+      <div id="table-display" class="table-badge">طاولة رقم: --</div>
+    </div>
   </header>
 
-  <main>
-    <div id="cart-items"></div>
-    <div id="buttons">
-      <button class="secondary-btn" onclick="goBack()">إضافة طلبات أخرى</button>
-      <button class="send-btn" onclick="sendOrder()">تأكيد وإرسال الطلب ➔</button>
+  <main class="main-container">
+    <div id="cart-items" class="cart-wrapper"></div>
+    
+    <div id="cart-actions" class="actions-wrapper">
+      <button class="secondary-btn" onclick="goBack()">➕ إضافة طلبات أخرى</button>
+      <button class="send-btn pulse-anim" onclick="sendOrder()">📲 إرسال الطلب عبر الواتساب</button>
     </div>
   </main>
+
 </body>
 </html>

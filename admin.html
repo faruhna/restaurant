@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة تحكم الطلبات | المطعم</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background-color: #0f0f0f; padding: 20px; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #d4af37; padding-bottom: 10px; margin-bottom: 20px; }
+    .order-card { background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    .order-card.pending { border-right: 6px solid #f39c12; }
+    .order-card.completed { border-right: 6px solid #27ae60; opacity: 0.6; }
+    .order-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; color: #d4af37; border-bottom: 1px solid #333; padding-bottom: 8px; }
+    .order-item-line { margin: 6px 0; font-size: 14px; color: #ddd; }
+    .status-btn { padding: 8px 14px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .btn-complete { background: #27ae60; color: white; }
+  </style>
+</head>
+<body>
+
+  <div class="admin-header">
+    <h1>🔔 لوحة تحكم الطلبات المباشرة</h1>
+    <span id="live-indicator" style="color: #27ae60; font-weight: bold;">● متصل بالفورًا</span>
+  </div>
+
+  <div id="orders-container">
+    <p style="text-align: center; color: #888;">جاري تحميل الطلبات...</p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyApRa-o_DSAikev_sHEh1gaUGPFC9sJIBI",
+      authDomain: "restaurant-app-31bbe.firebaseapp.com",
+      projectId: "restaurant-app-31bbe",
+      storageBucket: "restaurant-app-31bbe.firebasestorage.app",
+      messagingSenderId: "284724591836",
+      appId: "1:284724591836:web:f1eb2fd4581389ff2c0819",
+      measurementId: "G-MNNFNSZ2BM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const audioAlert = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+
+    let isFirstLoad = true;
+
+    const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+    
+    onSnapshot(q, (snapshot) => {
+      const container = document.getElementById("orders-container");
+      container.innerHTML = "";
+
+      if (snapshot.empty) {
+        container.innerHTML = "<p style='text-align:center;'>لا توجد طلبات حالياً.</p>";
+        return;
+      }
+
+      if (!isFirstLoad) {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "added") {
+            audioAlert.play().catch(e => console.log("Audio play blocked"));
+          }
+        });
+      }
+      isFirstLoad = false;
+
+      snapshot.forEach((docSnap) => {
+        const order = docSnap.data();
+        const orderId = docSnap.id;
+
+        const card = document.createElement("div");
+        card.className = `order-card ${order.status}`;
+        
+        let itemsHtml = "";
+        if (order.items) {
+          order.items.forEach(item => {
+            itemsHtml += `
+              <div class="order-item-line">
+                • <strong>${item.name}</strong> (عدد ${item.quantity})
+                ${item.notes ? `<span style="color: #f39c12;"> [ملاحظة: ${item.notes}]</span>` : ''}
+              </div>`;
+          });
+        }
+
+        card.innerHTML = `
+          <div class="order-header">
+            <span>طاولة رقم: ${order.tableNumber}</span>
+            <span>المجموع: ${order.totalAmount ? order.totalAmount.toLocaleString() : 0} ل.س</span>
+          </div>
+          <div style="margin: 10px 0;">${itemsHtml}</div>
+          <div>
+            ${order.status === 'pending' ? 
+              `<button class="status-btn btn-complete" onclick="markCompleted('${orderId}')">تغيير إلى: تم التسليم ✅</button>` : 
+              `<span style="color: #27ae60; font-weight: bold;">تم التسليم ✅</span>`
+            }
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    });
+
+    window.markCompleted = async function(orderId) {
+      const orderRef = doc(db, "orders", orderId);
+      await updateDoc(orderRef, { status: "completed" });
+    };
+  </script>
+</body>
+</html>

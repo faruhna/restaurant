@@ -3,16 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>قائمة الطعام</title>
+  <title>قائمة الطعام الفاخرة</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
   <script src="script.js" defer></script>
 </head>
 <body>
-  <header>
-    <h1>أهلاً وسهلاً بكم</h1>
-    <div id="table-display" class="table-badge">طاولة رقم: --</div>
+
+  <!-- Header -->
+  <header class="glass-header">
+    <div class="header-content">
+      <h1 class="logo-text">✨ أهلاً وسهلاً بكم</h1>
+      <div id="table-display" class="table-badge">طاولة رقم: --</div>
+    </div>
   </header>
 
+  <!-- Navigation Categories -->
   <nav class="categories-nav">
     <button class="nav-btn active" onclick="filterCategory('all', this)">✨ الكل</button>
     <button class="nav-btn" onclick="filterCategory('drinks', this)">🥤 مشروبات</button>
@@ -22,11 +28,16 @@
     <button class="nav-btn" onclick="filterCategory('desserts', this)">🍰 حلويات</button>
   </nav>
 
-  <section id="menu-container"></section>
+  <!-- Menu Section -->
+  <main class="main-container">
+    <div id="menu-container" class="grid-layout"></div>
+  </main>
 
-  <!-- زر السلة العائم للموبايل -->
+  <!-- Floating Cart Button -->
   <a href="cart.html" id="cart-link" class="floating-cart" title="السلة">
-    🛒 <span id="cart-count" class="cart-badge">0</span>
+    <span class="cart-icon">🛒</span>
+    <span id="cart-count" class="cart-badge">0</span>
   </a>
+
 </body>
 </html>
