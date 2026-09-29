@@ -1,4 +1,4 @@
-// إعدادات Firebase الخاصة بمشروعك
+// إعدادات Firebase الخاصّة بمشروعك
 const firebaseConfig = {
   apiKey: "AIzaSyApRa-o_DSAikev_sHEh1gaUGPFC9sJIBI",
   authDomain: "restaurant-app-31bbe.firebaseapp.com",
@@ -19,7 +19,6 @@ let allProducts = [];
 
 // جلب المنتجات من Firestore عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', () => {
-    // قراءة رقم الطاولة من الرابط URL
     const urlParams = new URLSearchParams(window.location.search);
     const tableParam = urlParams.get('table');
     if (tableParam) {
@@ -66,7 +65,7 @@ function displayProducts(products) {
         const productCard = document.createElement('div');
         productCard.className = 'product-card';
         productCard.innerHTML = `
-            <img src="${product.image || 'images/default.jpg'}" alt="${product.name}">
+            <img src="${product.image || 'https://via.placeholder.com/150'}" alt="${product.name}">
             <div class="product-info">
                 <h3>${product.name}</h3>
                 <p class="description">${product.description || ''}</p>
@@ -80,7 +79,7 @@ function displayProducts(products) {
     });
 }
 
-// دالة تصفية الأصناف (تصفية الأكل)
+// دالة تصفية الأصناف
 window.filterCategory = function(category) {
     const buttons = document.querySelectorAll('.cat-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
