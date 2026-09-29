@@ -1,6 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
+// إعدادات Firebase الخاصة بمشروعك
 const firebaseConfig = {
   apiKey: "AIzaSyApRa-o_DSAikev_sHEh1gaUGPFC9sJIBI",
   authDomain: "restaurant-app-31bbe.firebaseapp.com",
@@ -11,215 +9,114 @@ const firebaseConfig = {
   measurementId: "G-MNNFNSZ2BM"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-function getTableNumber() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("table") || "غير محددة";
+// تهيئة Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
 }
+const db = firebase.firestore();
 
-function displayTableNumber() {
-  const tableElem = document.getElementById("table-display");
-  if (tableElem) {
-    tableElem.textContent = `طاولة رقم: ${getTableNumber()}`;
-  }
-}
+let allProducts = [];
 
-const menuItems = [
-  { name: "عصير برتقال", category: "drinks", price: 5000, ingredients: "برتقال طبيعي، سكر", image: "images/orange-juice.jpg" },
-  { name: "شاورما دجاج", category: "arabic", price: 12000, ingredients: "دجاج، ثوم، خبز عربي", image: "images/shawarma.jpg" },
-  { name: "بيتزا مارجريتا", category: "western", price: 15000, ingredients: "جبنة، طماطم، ريحان", image: "images/pizza.jpg" },
-  { name: "بطاطا مقلية", category: "starters", price: 6000, ingredients: "بطاطا، زيت، ملح", image: "images/fries.jpg" },
-  { name: "كنافة نابلسية", category: "desserts", price: 10000, ingredients: "جبنة، سميد، قطر", image: "images/kunafa.jpg" }
-];
-
-window.adjustQty = function(index, delta) {
-  const qtyInput = document.getElementById(`qty-${index}`);
-  if (!qtyInput) return;
-  let val = parseInt(qtyInput.value) || 1;
-  val = Math.max(1, val + delta);
-  qtyInput.value = val;
-};
-
-function renderMenu(items) {
-  const container = document.getElementById("menu-container");
-  if (!container) return;
-
-  container.innerHTML = "";
-  items.forEach((item) => {
-    const originalIndex = menuItems.findIndex(m => m.name === item.name);
-    const div = document.createElement("div");
-    div.className = "menu-item";
-    div.innerHTML = `
-      <img src="${item.image}" alt="${item.name}" loading="lazy">
-      <div class="card-body">
-        <h3>${item.name}</h3>
-        <p class="ingredients">${item.ingredients}</p>
-        <p class="price">${item.price.toLocaleString()} ل.س</p>
-        <textarea id="note-${originalIndex}" placeholder="ملاحظات خاصة (بدون مخلل...)"></textarea>
-        <div class="qty-control">
-          <button type="button" onclick="adjustQty(${originalIndex}, -1)">-</button>
-          <input type="number" id="qty-${originalIndex}" value="1" min="1" readonly>
-          <button type="button" onclick="adjustQty(${originalIndex}, 1)">+</button>
-        </div>
-        <button class="add-btn" onclick='addToCart(${originalIndex})'>إضافة إلى السلة 🛒</button>
-      </div>
-    `;
-    container.appendChild(div);
-  });
-
-  updateCartBadge();
-  updateCartLink();
-}
-
-function updateCartLink() {
-  const cartLink = document.getElementById("cart-link");
-  if (cartLink) {
-    const table = getTableNumber();
-    cartLink.href = `cart.html?table=${table}`;
-  }
-}
-
-function updateCartBadge() {
-  const badge = document.getElementById("cart-count");
-  if (!badge) return;
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-  badge.textContent = totalCount;
-}
-
-window.addToCart = function(index) {
-  const item = { ...menuItems[index] };
-  const noteInput = document.getElementById(`note-${index}`);
-  const qtyInput = document.getElementById(`qty-${index}`);
-  
-  const note = noteInput ? noteInput.value : "";
-  const qty = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
-  
-  item.notes = note;
-  item.quantity = qty;
-  item.total = item.price * qty;
-
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
-  cart.push(item);
-  localStorage.setItem("cart", JSON.stringify(cart));
-
-  if (noteInput) noteInput.value = "";
-  if (qtyInput) qtyInput.value = 1;
-
-  updateCartBadge();
-  showToast(`تم إقرار "${item.name}" بالطلب`);
-};
-
-function showToast(message) {
-  const existingToast = document.querySelector('.toast-notification');
-  if (existingToast) existingToast.remove();
-
-  const toast = document.createElement('div');
-  toast.className = 'toast-notification';
-  toast.innerHTML = `<span>✓</span> ${message}`;
-  document.body.appendChild(toast);
-
-  setTimeout(() => {
-    toast.classList.add('hide');
-    setTimeout(() => toast.remove(), 400);
-  }, 2000);
-}
-
-function loadCart() {
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  const container = document.getElementById("cart-items");
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  if (cart.length === 0) {
-    container.innerHTML = `
-      <div class="empty-cart">
-        <p>السلة فارغة حالياً</p>
-        <button class="secondary-btn" onclick="goBack()">تصفح قائمة الطعام</button>
-      </div>`;
-    return;
-  }
-
-  let total = 0;
-  cart.forEach((item, index) => {
-    total += item.total;
-    const div = document.createElement("div");
-    div.className = "cart-item-card";
-    div.innerHTML = `
-      <div class="cart-item-info">
-        <h3>${item.name}</h3>
-        <p>العدد: ${item.quantity} × ${item.price.toLocaleString()} ل.س</p>
-        ${item.notes ? `<p class="item-note">ملاحظة: ${item.notes}</p>` : ''}
-        <p class="price">الإجمالي: ${item.total.toLocaleString()} ل.س</p>
-      </div>
-      <button class="delete-btn" onclick="removeItem(${index})">حذف 🗑️</button>
-    `;
-    container.appendChild(div);
-  });
-
-  const totalDiv = document.createElement("div");
-  totalDiv.className = "invoice-total";
-  totalDiv.textContent = `المجموع الكلي: ${total.toLocaleString()} ل.س`;
-  container.appendChild(totalDiv);
-}
-
-window.removeItem = function(index) {
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
-  cart.splice(index, 1);
-  localStorage.setItem("cart", JSON.stringify(cart));
-  loadCart();
-  updateCartBadge();
-};
-
-window.goBack = function() {
-  const table = getTableNumber();
-  window.location.href = `index.html?table=${table}`;
-};
-
-// إرسال الطلب المباشر إلى قاعدة البيانات
-window.sendOrder = async function() {
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  if (cart.length === 0) {
-    showToast("السلة فارغة!");
-    return;
-  }
-
-  const sendBtn = document.querySelector(".send-btn");
-  if (sendBtn) {
-    sendBtn.disabled = true;
-    sendBtn.textContent = "جاري إرسال الطلب...";
-  }
-
-  const table = getTableNumber();
-  const grandTotal = cart.reduce((sum, item) => sum + item.total, 0);
-
-  try {
-    // إضافة الطلب لقاعدة البيانات
-    await addDoc(collection(db, "orders"), {
-      tableNumber: table,
-      items: cart,
-      totalAmount: grandTotal,
-      status: "pending", // قيد الانتظار
-      createdAt: serverTimestamp()
-    });
-
-    localStorage.removeItem("cart");
-    window.location.href = `order.html?table=${table}`;
-  } catch (error) {
-    console.error("Error sending order: ", error);
-    alert("حدث خطأ أثناء إرسال الطلب، يرجى المحاولة مرة أخرى.");
-    if (sendBtn) {
-      sendBtn.disabled = false;
-      sendBtn.textContent = "إرسال الطلب إلى المطعم 🚀";
+// جلب المنتجات من Firestore عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', () => {
+    // قراءة رقم الطاولة من الرابط URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const tableParam = urlParams.get('table');
+    if (tableParam) {
+        document.getElementById('table-number').textContent = tableParam;
+        localStorage.setItem('tableNumber', tableParam);
+    } else {
+        const savedTable = localStorage.getItem('tableNumber') || '1';
+        document.getElementById('table-number').textContent = savedTable;
     }
-  }
+
+    loadProducts();
+    updateCartCount();
+});
+
+// دالة جلب المنتجات
+function loadProducts() {
+    const menuContainer = document.getElementById('menu-items');
+    menuContainer.innerHTML = '<p style="color: white; text-align: center;">جاري تحميل القائمة...</p>';
+
+    db.collection("products").get().then((querySnapshot) => {
+        allProducts = [];
+        querySnapshot.forEach((doc) => {
+            allProducts.push({ id: doc.id, ...doc.data() });
+        });
+
+        displayProducts(allProducts);
+    }).catch((error) => {
+        console.error("Error getting products: ", error);
+        menuContainer.innerHTML = '<p style="color: red; text-align: center;">حدث خطأ أثناء تحميل القائمة.</p>';
+    });
+}
+
+// دالة عرض المنتجات في الصفحة
+function displayProducts(products) {
+    const menuContainer = document.getElementById('menu-items');
+    menuContainer.innerHTML = '';
+
+    if (products.length === 0) {
+        menuContainer.innerHTML = '<p style="color: white; text-align: center;">لا توجد وجبات متوفرة حالياً.</p>';
+        return;
+    }
+
+    products.forEach(product => {
+        const productCard = document.createElement('div');
+        productCard.className = 'product-card';
+        productCard.innerHTML = `
+            <img src="${product.image || 'images/default.jpg'}" alt="${product.name}">
+            <div class="product-info">
+                <h3>${product.name}</h3>
+                <p class="description">${product.description || ''}</p>
+                <div class="product-footer">
+                    <span class="price">${product.price} ل.س</span>
+                    <button class="add-btn" onclick="addToCart('${product.id}', '${product.name}', ${product.price})">إضافة +</button>
+                </div>
+            </div>
+        `;
+        menuContainer.appendChild(productCard);
+    });
+}
+
+// دالة تصفية الأصناف (تصفية الأكل)
+window.filterCategory = function(category) {
+    const buttons = document.querySelectorAll('.cat-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    if (window.event && window.event.target) {
+        window.event.target.classList.add('active');
+    }
+
+    if (category === 'all') {
+        displayProducts(allProducts);
+    } else {
+        const filtered = allProducts.filter(p => p.category === category);
+        displayProducts(filtered);
+    }
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-  displayTableNumber();
-  if (document.getElementById("menu-container")) renderMenu(menuItems);
-  if (document.getElementById("cart-items")) loadCart();
-});
+// دالة إضافة منتج للسلة
+window.addToCart = function(id, name, price) {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const existingIndex = cart.findIndex(item => item.id === id);
+
+    if (existingIndex > -1) {
+        cart[existingIndex].quantity += 1;
+    } else {
+        cart.push({ id, name, price, quantity: 1 });
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartCount();
+};
+
+// تحديث عدد عناصر السلة
+function updateCartCount() {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const cartCountEl = document.getElementById('cart-count');
+    if (cartCountEl) {
+        cartCountEl.textContent = totalCount;
+    }
+}
