@@ -1,4 +1,4 @@
-// إعدادات Firebase الخاصّة بمشروعك
+// إعدادات Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyApRa-o_DSAikev_sHEh1gaUGPFC9sJIBI",
   authDomain: "restaurant-app-31bbe.firebaseapp.com",
@@ -9,7 +9,6 @@ const firebaseConfig = {
   measurementId: "G-MNNFNSZ2BM"
 };
 
-// تهيئة Firebase
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
@@ -17,7 +16,20 @@ const db = firebase.firestore();
 
 let allProducts = [];
 
-// جلب المنتجات من Firestore عند تحميل الصفحة
+// قائمة الوجبات الأساسية لضمان ظهور القائمة كاملة أمام الزبون فوراً
+const defaultProducts = [
+    { id: '1', name: 'بيتزا مارجريتا', price: 25000, category: 'غربي', description: 'جبنة موزاريلا مع صلصة طماطم فاخرة', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300' },
+    { id: '2', name: 'بيتزا تشيز برغر', price: 32000, category: 'غربي', description: 'لحم مفروم، جبنة، وصلصة خاصة', image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300' },
+    { id: '3', name: 'وجبة شاورما دجاج', price: 18000, category: 'شرقي', description: 'شاورما دجاج مع ثوم وبطاطا ومخلل', image: 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300' },
+    { id: '4', name: 'شيش طاووق', price: 22000, category: 'شرقي', description: 'قطع دجاج مشوية مع التوابل الخاصة', image: 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=300' },
+    { id: '5', name: 'بطاطا مقلية', price: 9000, category: 'مقبلات', description: 'بطاطا مقرمشة ساخنة مع البهارات', image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=300' },
+    { id: '6', name: 'متبل باذنجان', price: 10000, category: 'مقبلات', description: 'باذنجان مشوي مع طحينة وثوم', image: 'https://images.unsplash.com/photo-1541529086526-db283c563270?w=300' },
+    { id: '7', name: 'عصير برتقال طازج', price: 8000, category: 'مشروبات', description: 'عصير برتقال طبيعي 100% منعش', image: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=300' },
+    { id: '8', name: 'كولا', price: 5000, category: 'مشروبات', description: 'مشروب غازي بارد', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300' },
+    { id: '9', name: 'كنافة بالجبنة', price: 20000, category: 'حلويات', description: 'كنافة ساخنة مع الجبنة والقطر والفستق', image: 'https://images.unsplash.com/photo-1579372786545-d24232daf58c?w=300' },
+    { id: '10', name: 'تشيز كيك', price: 23000, category: 'حلويات', description: 'تشيز كيك غني بصوص الفراولة', image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=300' }
+];
+
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const tableParam = urlParams.get('table');
@@ -33,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartCount();
 });
 
-// دالة جلب المنتجات
+// جلب المنتجات (من قاعدة البيانات أو القائمة الافتراضية لضمان عدم بقاء الصفحة فارغة)
 function loadProducts() {
     const menuContainer = document.getElementById('menu-items');
     menuContainer.innerHTML = '<p style="color: white; text-align: center;">جاري تحميل القائمة...</p>';
@@ -44,22 +56,22 @@ function loadProducts() {
             allProducts.push({ id: doc.id, ...doc.data() });
         });
 
+        // إذا كانت قاعدة البيانات فارغة، نستخدم القائمة الافتراضية لترى كل الوجبات مباشرة
+        if (allProducts.length === 0) {
+            allProducts = defaultProducts;
+        }
+
         displayProducts(allProducts);
     }).catch((error) => {
         console.error("Error getting products: ", error);
-        menuContainer.innerHTML = '<p style="color: red; text-align: center;">حدث خطأ أثناء تحميل القائمة.</p>';
+        displayProducts(defaultProducts);
     });
 }
 
-// دالة عرض المنتجات في الصفحة
+// عرض الوجبات في الصفحة
 function displayProducts(products) {
     const menuContainer = document.getElementById('menu-items');
     menuContainer.innerHTML = '';
-
-    if (products.length === 0) {
-        menuContainer.innerHTML = '<p style="color: white; text-align: center;">لا توجد وجبات متوفرة حالياً.</p>';
-        return;
-    }
 
     products.forEach(product => {
         const productCard = document.createElement('div');
@@ -79,7 +91,7 @@ function displayProducts(products) {
     });
 }
 
-// دالة تصفية الأصناف
+// تصفية حسب القسم
 window.filterCategory = function(category) {
     const buttons = document.querySelectorAll('.cat-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
@@ -95,7 +107,7 @@ window.filterCategory = function(category) {
     }
 };
 
-// دالة إضافة منتج للسلة
+// إضافة للسلة وتخزينها محلياً
 window.addToCart = function(id, name, price) {
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
     const existingIndex = cart.findIndex(item => item.id === id);
@@ -108,9 +120,9 @@ window.addToCart = function(id, name, price) {
 
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCartCount();
+    alert(`تمت إضافة "${name}" إلى السلة! 🛒`);
 };
 
-// تحديث عدد عناصر السلة
 function updateCartCount() {
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
     const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
