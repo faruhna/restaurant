@@ -1,25 +1,140 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>حالة الطاولة والألعاب</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
-  <script src="script.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سلة الطلبات - المطعم</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { font-family: Tahoma, sans-serif; background-color: #121212; color: #fff; padding: 20px; }
+        .order-container { max-width: 600px; margin: 0 auto; background: #1e1e1e; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        h2 { text-align: center; color: #ff9800; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding: 10px 0; }
+        .total-section { font-size: 1.2em; font-weight: bold; text-align: left; margin-top: 20px; color: #4CAF50; }
+        .submit-btn { display: block; width: 100%; background: #ff9800; color: white; border: none; padding: 12px; font-size: 1.1em; border-radius: 5px; cursor: pointer; margin-top: 20px; font-weight: bold; }
+        .submit-btn:hover { background: #e68900; }
+        .back-btn { display: inline-block; margin-bottom: 15px; color: #aaa; text-decoration: none; }
+        .back-btn:hover { color: #fff; }
+    </style>
 </head>
 <body>
 
-  <header class="glass-header">
-    <div class="header-content">
-      <h1 class="logo-text">متابعة الطلب والطاولة</h1>
-      <div id="table-display" class="table-badge">طاولة رقم: --</div>
+    <div class="order-container">
+        <a href="index.html" class="back-btn">← العودة إلى القائمة</a>
+        <h2>🛒 سلة الطلبات (طاولة رقم: <span id="order-table">1</span>)</h2>
+        
+        <div id="cart-items-list">
+            <!-- عناصر السلة ستظهر هنا -->
+        </div>
+
+        <div class="total-section">
+            المجموع الكلي: <span id="cart-total">0</span> ل.س
+        </div>
+
+        <button class="submit-btn" onclick="submitOrder()">إرسال الطلب إلى المطعم 🚀</button>
     </div>
-  </header>
 
-  <main class="main-container">
-    <div id="order-details"></div>
-  </main>
+    <!-- استدعاء مكتبات Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
+    <script>
+        // إعدادات Firebase الخاصة بمشروعك
+        const firebaseConfig = {
+          apiKey: "AIzaSyApRa-o_DSAikev_sHEh1gaUGPFC9sJIBI",
+          authDomain: "restaurant-app-31bbe.firebaseapp.com",
+          projectId: "restaurant-app-31bbe",
+          storageBucket: "restaurant-app-31bbe.firebasestorage.app",
+          messagingSenderId: "284724591836",
+          appId: "1:284724591836:web:f1eb2fd4581389ff2c0819",
+          measurementId: "G-MNNFNSZ2BM"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        // عرض محتويات السلة عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            const tableNumber = localStorage.getItem('tableNumber') || '1';
+            document.getElementById('order-table').textContent = tableNumber;
+            renderCart();
+        });
+
+        function renderCart() {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const container = document.getElementById('cart-items-list');
+            const totalEl = document.getElementById('cart-total');
+            
+            container.innerHTML = '';
+
+            if (cart.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #888; padding: 20px;">السلة فارغة حالياً.</p>';
+                totalEl.textContent = '0';
+                return;
+            }
+
+            let total = 0;
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <div>
+                        <strong>${item.name}</strong><br>
+                        <small>${item.price} ل.س × ${item.quantity}</small>
+                    </div>
+                    <div>
+                        <span>${item.total || itemTotal} ل.س</span>
+                        <button onclick="removeItem(${index})" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin-right: 10px;">حذف</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            totalEl.textContent = total;
+        }
+
+        // حذف منتج من السلة
+        window.removeItem = function(index) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            renderCart();
+        };
+
+        // إرسال الطلب إلى مجموعة orders في قاعدة البيانات
+        window.submitOrder = function() {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const tableNumber = localStorage.getItem('tableNumber') || '1';
+
+            if (cart.length === 0) {
+                alert("السلة فارغة، يرجى إضافة وجبات أولاً!");
+                return;
+            }
+
+            const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            db.collection("orders").add({
+                table: tableNumber,
+                items: cart,
+                total: totalAmount,
+                status: "قيد المعالجة",
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                alert("تم إرسال طلبك بنجاح إلى المطعم! سيتم تحضيره فوراً 🍽️");
+                localStorage.removeItem('cart');
+                window.location.href = 'index.html';
+            })
+            .catch((error) => {
+                console.error("خطأ في إرسال الطلب: ", error);
+                alert("حدث خطأ أثناء إرسال الطلب، يرجى المحاولة مرة أخرى.");
+            });
+        };
+    </script>
 </body>
 </html>
